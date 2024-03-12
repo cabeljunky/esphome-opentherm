@@ -2,7 +2,13 @@
 # inputs of the OpenTherm component.
 
 from typing import Dict, Generic, Tuple, TypeVar, TypedDict
-from typing_extensions import NotRequired
+
+# NotRequired was moved to typing in Python 3.11
+# as long as ESPHome supports Python < 3.11, we need to allow both imports
+try:
+    from typing import NotRequired
+except ImportError:
+    from typing_extensions import NotRequired
 
 from esphome.const import (
     UNIT_CELSIUS,
@@ -37,14 +43,14 @@ class EntitySchema(TypedDict):
 
     message_data: str
     """Instructions on how to interpret the data in the message
-      - flag8_[hb|lb]_[0-7]: data is a byte of single bit flags, 
+      - flag8_[hb|lb]_[0-7]: data is a byte of single bit flags,
                              this flag is set in the high (hb) or low byte (lb),
                              at position 0 to 7
-      - u8_[hb|lb]: data is an unsigned 8-bit integer, 
+      - u8_[hb|lb]: data is an unsigned 8-bit integer,
                     in the high (hb) or low byte (lb)
-      - s8_[hb|lb]: data is an signed 8-bit integer, 
+      - s8_[hb|lb]: data is an signed 8-bit integer,
                     in the high (hb) or low byte (lb)
-      - f88: data is a signed fixed point value with 
+      - f88: data is a signed fixed point value with
               1 sign bit, 7 integer bits, 8 fractional bits
       - u16: data is an unsigned 16-bit integer
       - s16: data is a signed 16-bit integer
@@ -363,7 +369,7 @@ SENSORS: Schema[SensorSchema] = Schema({
         "accuracy_decimals": 0,
         "icon": "mdi:fan",
         "state_class": STATE_CLASS_MEASUREMENT,
-        "message": "BoilerFanSpeed",
+        "message": "BoilerFanSpeedSetpointAndActual",
         "keep_updated": True,
         "message_data": "u16",
     }),
@@ -646,6 +652,27 @@ SWITCHES: Schema[SwitchSchema] = Schema({
         "message": "Status",
         "keep_updated": True,
         "message_data": "flag8_hb_4",
+        "default_mode": "restore_default_off"
+    }),
+    "sm_active": SwitchSchema({
+        "description": "Summer mode active",
+        "message": "Status",
+        "keep_updated": True,
+        "message_data": "flag8_hb_5",
+        "default_mode": "restore_default_off"
+    }),
+    "dhw_block": SwitchSchema({
+        "description": "DHW Blocking",
+        "message": "Status",
+        "keep_updated": True,
+        "message_data": "flag8_hb_6",
+        "default_mode": "restore_default_off"
+    }),
+    "lock_out_reset": SwitchSchema({
+        "description": "Boiler Lock-out Reset",
+        "message": "Command",
+        "keep_updated": True,
+        "message_data": "flag8_hb_1",
         "default_mode": "restore_default_off"
     }),
 })
